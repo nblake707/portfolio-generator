@@ -1,15 +1,6 @@
 const inquirer = require("inquirer");
-
-// const fs = require('fs');
-// const generatePage = require('./src/page-template.js');
-
-// const pageHTML = generatePage(name, github);
-
-// fs.writeFile('index.html', pageHTML , err => {
-//     if(err) throw err;
-
-//     console.log('Portfolio complete! Check out index.html to see the output!');
-// });
+const fs = require("fs");
+const generatePage = require("./src/page-template.js");
 
 const promptUser = () => {
   return inquirer.prompt([
@@ -103,15 +94,26 @@ const promptProject = (portfolioData) => {
       },
     ])
     .then((projectData) => {
-      portfolioData.projects.push(projectData);
+      portfolioData.projects.push(projectData); // add project to the projects array
       if (projectData.confirmAddProject) {
-        return promptProject(portfolioData);
+        return promptProject(portfolioData); // recursive call if another project is needed
       } else {
-        return portfolioData;
+        return portfolioData; // return data if no other projects
       }
     });
 };
 
 promptUser()
+  // promise chain
   .then(promptProject)
-  .then((portfolioData) => console.log(portfolioData));
+  .then((portfolioData) => {
+    const pageHTML = generatePage(portfolioData);
+
+    fs.writeFile("index.html", pageHTML, (err) => {
+      if (err) throw err;
+
+      console.log(
+        "Portfolio complete! Check out index.html to see the output!"
+      );
+    });
+  });
